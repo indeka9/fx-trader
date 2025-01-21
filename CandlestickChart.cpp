@@ -108,22 +108,23 @@ void CandlestickChart::drawAxes()const {
         }
     }
 
+
     // Draw value labels along the X axis
     size_t step = candlesticks.size() / 10;
     for (size_t i = 0; i < candlesticks.size(); i += step) {
         float x = offsetX + (i * scaleX);
         glRasterPos2f(x, 0.1f);
         std::time_t timestamp = candlesticks[i].timestamp;
-        std::tm* tm = std::localtime(&timestamp);
+        std::tm tm;
+        localtime_s(&tm, &timestamp);
         char buffer[6];
-        std::strftime(buffer, sizeof(buffer), "%H:%M", tm);
+        std::strftime(buffer, sizeof(buffer), "%H:%M", &tm);
         std::string label(buffer);
         for (char c : label) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
         }
     }
 }
-
 
 // In CandlestickChart.cpp
 void CandlestickChart::drawLegend() const {
