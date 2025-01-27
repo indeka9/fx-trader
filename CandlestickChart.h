@@ -3,7 +3,7 @@
 #define CANDLESTICKCHART_H
 
 #include <GLFW/glfw3.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <iomanip>
 #include "Canvas.h"
 #include "Candlestick.h"
@@ -23,6 +23,7 @@ public:
 	~CandlestickChart();
 	
 	void draw() const ;
+	void move_left();
 	void setCandlesticks(const std::deque<Candlestick>& candles) ;
 	
 	void drawCandlestick(float x, const Candlestick& cs, float scaleX, float scaleY, float offsetX, float offsetY, bool isHovered) const;
@@ -55,6 +56,11 @@ private:
 	std::deque<float> smaValues; // Store SMA values
 	std::deque<float> emaValues; // Store EMA values
 	std::deque<float> rsiValues; // Store EMA values
+	int maxVisibleCandles;
+	
+	void updatePanBounds();
+	float minPanX;
+	float maxPanX;
 	
 };
 

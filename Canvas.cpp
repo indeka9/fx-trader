@@ -1,6 +1,6 @@
 #include "Canvas.h"
 
-Canvas::Canvas(int w, int h) : width(w), height(h), isPanning(false), zoomLevel(1.0f), panX(0.0f), panY(0.0f),lastMouseX(0),lastMouseY(0) {
+Canvas::Canvas(int w, int h) : width(w), height(h), isPanning(false), zoomLevel(1.0f), panX(0.0f), panY(0.0f), lastMouseX(0), lastMouseY(0) {
 	initGL();
 }
 
@@ -29,9 +29,8 @@ void Canvas::renderLoop() const {
 	}
 }
 
-
 void Canvas::initGL() {
-	
+
 	int argc = 1;
 	char* argv[1] = { (char*)"Something" };
 	glutInit(&argc, argv);
@@ -73,8 +72,8 @@ void Canvas::initGL() {
 	// Enable blending for transparency
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-		// Set the mouse button callback
+
+	// Set the mouse button callback
 	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) {
 		auto canvas = static_cast<Canvas*>(glfwGetWindowUserPointer(window));
 		canvas->handleFramebufferSizeCallback(width, height);
@@ -105,7 +104,7 @@ void Canvas::initGL() {
 		});
 
 
-	
+
 }
 
 
@@ -118,7 +117,6 @@ void Canvas::handleScroll(double xoffset, double yoffset) {
 	// Clamp the zoom level to a reasonable range
 	newZoomLevel = std::max(0.1f, std::min(newZoomLevel, 10.0f));
 
-	
 	// Convert mouse position to world coordinates
 	float worldMouseX = panX + (xoffset / width) * (10.0f / zoomLevel);
 	float worldMouseY = panY + ((height - yoffset) / height) * (10.0f / zoomLevel);
@@ -129,9 +127,12 @@ void Canvas::handleScroll(double xoffset, double yoffset) {
 
 	// Update the zoom level
 	zoomLevel = newZoomLevel;
+
+	
 	lastMouseX = xoffset;
 	lastMouseY = yoffset;
 }
+
 
 void Canvas::handleMouseButton(int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -146,39 +147,61 @@ void Canvas::handleMouseButton(int button, int action, int mods) {
 }
 
 
+
 void Canvas::handleMouseMove(double xpos, double ypos) {
 	if (isPanning) {
 		double dx = xpos - lastMouseX;
 		double dy = ypos - lastMouseY;
-		panX -= dx / width * 10.0 / zoomLevel;
+		panX -= dx / width * 10.0 / zoomLevel; // Adjust panX for horizontal dragging
 		panY += dy / height * 10.0 / zoomLevel;
 		lastMouseX = xpos;
 		lastMouseY = ypos;
 	}
 }
 
-
 void Canvas::handleKeyPress(int key, int action) {
 	if (action == GLFW_PRESS) {
-
-		if (key == GLFW_KEY_R) { zoomLevel = 1.0f; panX = 0.0f; panY = 0.0f; }
-
+		if (key == GLFW_KEY_R) {
+			zoomLevel = 1.0f;
+			panX = 0.0f;
+			panY = 0.0f;
+		}
+		// Handle left and right arrow keys for horizontal scrolling
+		else if (key == GLFW_KEY_LEFT) {
+			handleHorizontalScroll(-1.0f); // Scroll left
+		}
+		else if (key == GLFW_KEY_RIGHT) {
+			handleHorizontalScroll(1.0f); // Scroll right
+		}
 	}
 }
 
 
+void Canvas::handleFramebufferSizeCallback(int w, int h) {
 
-void Canvas::handleFramebufferSizeCallback( int w, int h) {
+	width = w;
+	height = h;
+	glViewport(0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-		width = w;
-		height = h;
-		glViewport(0, 0, width, height);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	
 }
 
+
+void Canvas::handleHorizontalScroll(float offset) {
+	// Adjust panX based on the offset
+	panX += offset;
+
+	// Clamp panX to prevent scrolling too far left or right
+	// The minPanX and maxPanX values will be set by the CandlestickChart class
+	// For now, we assume the chart width is 10.0 units
+	clampPanX(-10.0f, 10.0f);
+}
+
+void Canvas::clampPanX(float minPanX, float maxPanX) {
+	panX = std::max(minPanX, std::min(panX, maxPanX));
+}
 

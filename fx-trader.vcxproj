@@ -104,13 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\freeglut\include;C:\GLFW\include;C:\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:\Users\gamma\source\repos\fx-trader\lib\libglfw3.a;C:\Users\gamma\source\repos\fx-trader\lib\freeglutd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\gamma\source\repos\fx-trader\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);C:\VC\lib\glfw3.lib;C:\VC\lib\freeglut.lib;C:\VC\lib\OpenGL32.Lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AddModuleNamesToAssembly>
       </AddModuleNamesToAssembly>
       <AssemblyLinkResource>
@@ -135,6 +135,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>C:\VC\lib\glfw3.lib;C:\VC\lib\freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -143,6 +144,7 @@
     <ClCompile Include="FxTrader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RSIWindow.cpp" />
+    <ClCompile Include="Candlestick.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Candlestick.h" />
