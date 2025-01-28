@@ -50,5 +50,8 @@
     <ClInclude Include="RSIWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="chart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

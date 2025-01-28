@@ -151,6 +151,7 @@
     <ClInclude Include="CandlestickChart.h" />
     <ClInclude Include="Canvas.h" />
     <ClInclude Include="FxTrader.h" />
+    <ClInclude Include="chart.h" />
     <ClInclude Include="RSIWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

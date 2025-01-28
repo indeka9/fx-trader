@@ -14,14 +14,18 @@
 #include <ctime>
 #include <algorithm>
 #include <random>
+#include "Chart.h"
 
 
-class CandlestickChart : public Canvas {
+
+class CandlestickChart : public Canvas, Chart {
 public:
 	
 	CandlestickChart(int w, int h);
 	~CandlestickChart();
-	
+
+	void handleKeyPress(int key, int action) override; // Override the base class method
+
 	void draw() const ;
 	void move_left();
 	void setCandlesticks(const std::deque<Candlestick>& candles) ;
@@ -49,6 +53,7 @@ public:
 	static float findMinValue(const std::deque<Candlestick>& candles);
 	static float findMaxValue(const std::deque<Candlestick>& candles);
 	bool isMouseHovering(float mouseX, float mouseY, float x, const Candlestick& cs, float scaleX, float scaleY, float offsetX, float offsetY) const;
+	
 
 private:
 	

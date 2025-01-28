@@ -654,18 +654,50 @@ float CandlestickChart::findMinValue(const std::deque<Candlestick>& candles) {
 // In CandlestickChart.cpp
 void CandlestickChart::setSMA(const std::deque<float>& sma) {
     smaValues = sma;
-    sma_on = true;
 }
 
 void CandlestickChart::setEMA(const std::deque<float>& ema) {
     emaValues = ema;
-    ema_on = true;
 }
 
 void CandlestickChart::setRSI(const std::deque<float>& rsi) {
     rsiValues = rsi;
-    rsi_on = true;
 }
+
+
+// CandlestickChart.cpp
+void CandlestickChart::handleKeyPress(int key, int action) {
+    if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_R) {
+            zoomLevel = 1.0f;
+            panX = 0.0f;
+            panY = 0.0f;
+        }
+        // Handle left and right arrow keys for horizontal scrolling
+        else if (key == GLFW_KEY_LEFT) {
+            handleHorizontalScroll(-1.0f); // Scroll left
+        }
+        else if (key == GLFW_KEY_RIGHT) {
+            handleHorizontalScroll(1.0f); // Scroll right
+        }
+
+        else if (key == GLFW_KEY_S) {
+            // Toggle SMA display
+            sma_on = !sma_on;
+        }
+
+        else if (key == GLFW_KEY_E) {
+            // Toggle EMA display
+            ema_on = !ema_on;
+        }
+        else if (key == GLFW_KEY_I) {
+            // Toggle RSI display
+            rsi_on = !rsi_on;
+        }
+        // Add more key handling as needed
+    }
+}
+
 
 
 void CandlestickChart::updatePanBounds() {

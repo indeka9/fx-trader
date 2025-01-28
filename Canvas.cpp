@@ -1,6 +1,9 @@
 #include "Canvas.h"
 
-Canvas::Canvas(int w, int h) : width(w), height(h), isPanning(false), zoomLevel(1.0f), panX(0.0f), panY(0.0f), lastMouseX(0), lastMouseY(0) {
+
+// Canvas.cpp
+Canvas::Canvas(int w, int h)
+	: width(w), height(h), isPanning(false), zoomLevel(1.0f), panX(0.0f), panY(0.0f), lastMouseX(0), lastMouseY(0) {
 	initGL();
 }
 
@@ -159,23 +162,6 @@ void Canvas::handleMouseMove(double xpos, double ypos) {
 	}
 }
 
-void Canvas::handleKeyPress(int key, int action) {
-	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_R) {
-			zoomLevel = 1.0f;
-			panX = 0.0f;
-			panY = 0.0f;
-		}
-		// Handle left and right arrow keys for horizontal scrolling
-
-		else if (key == GLFW_KEY_LEFT) {
-			handleHorizontalScroll(-1.0f); // Scroll left
-		}
-		else if (key == GLFW_KEY_RIGHT) {
-			handleHorizontalScroll(1.0f); // Scroll right
-		}
-	}
-}
 
 
 void Canvas::handleFramebufferSizeCallback(int w, int h) {
