@@ -167,6 +167,7 @@ void Canvas::handleKeyPress(int key, int action) {
 			panY = 0.0f;
 		}
 		// Handle left and right arrow keys for horizontal scrolling
+
 		else if (key == GLFW_KEY_LEFT) {
 			handleHorizontalScroll(-1.0f); // Scroll left
 		}

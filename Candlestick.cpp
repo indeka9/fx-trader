@@ -123,3 +123,34 @@ std::deque<Candlestick> Candlestick::generateRealisticCandlesticks(std::deque<Ca
     return candlesticks;
 }
 
+// Static helper method to convert Period enum to seconds
+int Candlestick::periodToSeconds(Candlestick::Period period) {
+    switch (period) {
+    case Candlestick::Period::ONE_MINUTE: return 5;
+    case Candlestick::Period::FIVE_MINUTES: return 300;
+    case Candlestick::Period::FIFTEEN_MINUTES: return 900;
+    case Candlestick::Period::THIRTY_MINUTES: return 1800;
+    case Candlestick::Period::ONE_HOUR: return 3600;
+    case Candlestick::Period::FOUR_HOURS: return 14400;
+    case Candlestick::Period::ONE_DAY: return 86400;
+    case Candlestick::Period::ONE_WEEK: return 604800;
+    case Candlestick::Period::ONE_MONTH: return 2592000; // Approximate, assuming 30 days
+    default: return 60; // Default to 1 minute
+    }
+}
+
+bool Candlestick::onTimer(Candlestick::Period timerperiod) {
+
+    static std::chrono::steady_clock::time_point lastUpdateTime = std::chrono::steady_clock::now();
+    bool _updateFlag = false;
+    auto currentTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(currentTime - lastUpdateTime).count();
+    int periodInSeconds = periodToSeconds(timerperiod);
+
+    if (duration >= periodInSeconds) {
+        _updateFlag = !_updateFlag; // Toggle the update flag
+        lastUpdateTime = currentTime;
+    }
+
+    return _updateFlag;
+}

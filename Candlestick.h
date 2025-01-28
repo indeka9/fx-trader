@@ -25,7 +25,9 @@ public:
         ONE_MONTH
     };
 
-    
+    static int periodToSeconds(Candlestick::Period period);
+    static bool onTimer(Candlestick::Period timerperiod);
+
     // Static methods for finding max and min values
     static float findMaxValue(const std::deque<Candlestick>& candles);
 

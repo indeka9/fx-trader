@@ -1,7 +1,7 @@
 #include "CandlestickChart.h"
 
 
-CandlestickChart::CandlestickChart(int w, int h) : Canvas(w, h), maxVisibleCandles(50){
+CandlestickChart::CandlestickChart(int w, int h) : Canvas(w, h), maxVisibleCandles(80){
   
 }
 
