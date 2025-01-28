@@ -1,7 +1,7 @@
 #include "CandlestickChart.h"
 
 
-CandlestickChart::CandlestickChart(int w, int h) : Canvas(w, h), maxVisibleCandles(50), minPanX(0.0f), maxPanX(0.0f) {
+CandlestickChart::CandlestickChart(int w, int h) : Canvas(w, h), maxVisibleCandles(50){
   
 }
 
@@ -38,7 +38,7 @@ void CandlestickChart::move_left() {
     panX += candleWidth;
 
     // Clamp panX to ensure it stays within valid bounds
-    clampPanX(minPanX, maxPanX);
+    clampPanX();
 }
 
 void CandlestickChart::setCandlesticks(const std::deque<Candlestick>& candles) {
@@ -224,7 +224,7 @@ void CandlestickChart::drawLegend() const {
 
 void CandlestickChart::drawCandlesticks() const {
     // Clamp panX to ensure it stays within valid bounds
-    const_cast<CandlestickChart*>(this)->clampPanX(minPanX, maxPanX);
+    const_cast<CandlestickChart*>(this)->clampPanX();
 
     float maxCandleValue = Candlestick::findMaxValue(candlesticks);
     float minCandleValue = Candlestick::findMinValue(candlesticks);
@@ -680,5 +680,5 @@ void CandlestickChart::updatePanBounds() {
     maxPanX = std::max(0.0f, maxPanX);
 
     // Clamp the current panX to the new bounds
-    clampPanX(minPanX, maxPanX);
+    clampPanX();
 }

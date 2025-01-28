@@ -196,11 +196,11 @@ void Canvas::handleHorizontalScroll(float offset) {
 	panX += offset;
 
 	// Clamp panX to prevent scrolling too far left or right
-	clampPanX(minPanX, maxPanX);
+	clampPanX();
 }
 
 
-void Canvas::clampPanX(float minPanX, float maxPanX) {
+void Canvas::clampPanX() {
 	panX = std::max(minPanX, std::min(panX, maxPanX));
 }
 

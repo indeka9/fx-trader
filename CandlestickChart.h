@@ -59,8 +59,7 @@ private:
 	int maxVisibleCandles;
 	
 	void updatePanBounds();
-	float minPanX;
-	float maxPanX;
+
 	
 };
 

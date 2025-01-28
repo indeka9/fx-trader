@@ -37,7 +37,7 @@ protected:
     void handleKeyPress(int key, int action);
     void handleFramebufferSizeCallback( int width, int height);
     void handleHorizontalScroll(float offset);
-    void clampPanX(float minPanX, float maxPanX);
+    void clampPanX();
 };
 
 #endif // CANVAS_H
