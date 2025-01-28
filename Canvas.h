@@ -27,6 +27,8 @@ protected:
     double lastMouseY;
     GLFWwindow* window;
     
+    float minPanX; 
+    float maxPanX;
 
     void initGL();
     void handleScroll(double xoffset, double yoffset) ;

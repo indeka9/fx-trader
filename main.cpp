@@ -9,7 +9,7 @@
 // Static helper method to convert Period enum to seconds
 int periodToSeconds(Candlestick::Period period) {
 	switch (period) {
-	case Candlestick::Period::ONE_MINUTE: return 1;
+	case Candlestick::Period::ONE_MINUTE: return 5;
 	case Candlestick::Period::FIVE_MINUTES: return 300;
 	case Candlestick::Period::FIFTEEN_MINUTES: return 900;
 	case Candlestick::Period::THIRTY_MINUTES: return 1800;
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Render here
-		chart.draw();
+		
 
 		static std::chrono::steady_clock::time_point lastUpdateTime = std::chrono::steady_clock::now();
 		auto currentTime = std::chrono::steady_clock::now();
@@ -82,20 +82,24 @@ int main(int argc, char** argv) {
 		}
 
 		if (_updateFlag) {
-			candlesticks = Candlestick::generateRealisticCandlesticks(candlesticks,1);
-			
+			candlesticks = Candlestick::generateRealisticCandlesticks(candlesticks, 1);
+
 			sma = FxTrader::calculateSMA(candlesticks, period);
 			ema = FxTrader::calculateEMA(candlesticks, period);
 			rsi = FxTrader::calculateRSI(candlesticks, period);
+
 			chart.setCandlesticks(candlesticks);
 			chart.setSMA(sma);
 			chart.setEMA(ema);
 			chart.setRSI(rsi);
+
+			chart.move_left(); // Move the chart to the left when a new candle is added
+
 			_updateFlag = !_updateFlag;
 		}
 
-	    
-		chart.move_left();
+		chart.draw();
+		
 
 		// Swap front and back buffers
 		glfwSwapBuffers(window);

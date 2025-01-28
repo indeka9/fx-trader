@@ -32,13 +32,14 @@ void CandlestickChart::draw() const{
     drawLegend();
 }
 
-void CandlestickChart::move_left()
-{
-    
-    handleHorizontalScroll(+1.0f);
+void CandlestickChart::move_left() {
+    // Move the chart to the left by one candle width
+    float candleWidth = 9.6f / maxVisibleCandles;
+    panX += candleWidth;
+
+    // Clamp panX to ensure it stays within valid bounds
+    clampPanX(minPanX, maxPanX);
 }
-
-
 
 void CandlestickChart::setCandlesticks(const std::deque<Candlestick>& candles) {
 
@@ -238,8 +239,8 @@ void CandlestickChart::drawCandlesticks() const {
     // Convert mouse position to world coordinates
     //float worldMouseX = panX + (mouseX / width) * (10.0f / zoomLevel);
     //float worldMouseY = panY + ((height - mouseY) / height) * (10.0f / zoomLevel);
-    float worldMouseX =  (mouseX / width) * (10.0f / zoomLevel);
-    float worldMouseY =  ((height - mouseY) / height) * (10.0f / zoomLevel);
+    float worldMouseX = (mouseX / width) * (10.0f / zoomLevel);
+    float worldMouseY = ((height - mouseY) / height) * (10.0f / zoomLevel);
 
 
     // Calculate the start and end indices for visible candles
@@ -260,6 +261,8 @@ void CandlestickChart::drawCandlesticks() const {
         }
     }
 }
+
+
 
 
 
@@ -676,6 +679,6 @@ void CandlestickChart::updatePanBounds() {
     // Ensure maxPanX is not negative (if there are fewer candles than the visible area)
     maxPanX = std::max(0.0f, maxPanX);
 
-
+    // Clamp the current panX to the new bounds
+    clampPanX(minPanX, maxPanX);
 }
-

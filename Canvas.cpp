@@ -184,22 +184,21 @@ void Canvas::handleFramebufferSizeCallback(int w, int h) {
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
+	//glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
+	glOrtho(0, 10.0 / zoomLevel , 0, 10.0 / zoomLevel , -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 }
-
 
 void Canvas::handleHorizontalScroll(float offset) {
 	// Adjust panX based on the offset
 	panX += offset;
 
 	// Clamp panX to prevent scrolling too far left or right
-	// The minPanX and maxPanX values will be set by the CandlestickChart class
-	// For now, we assume the chart width is 10.0 units
-	clampPanX(-10.0f, 10.0f);
+	clampPanX(minPanX, maxPanX);
 }
+
 
 void Canvas::clampPanX(float minPanX, float maxPanX) {
 	panX = std::max(minPanX, std::min(panX, maxPanX));
