@@ -2,7 +2,7 @@
 
 
 CandlestickChart::CandlestickChart(int w, int h) : Canvas(w, h), maxVisibleCandles(80){
-  
+
 }
 
 CandlestickChart::~CandlestickChart() {
@@ -120,21 +120,36 @@ void CandlestickChart::drawAxes()const {
     }
 
 
-    // Draw value labels along the X axis
+    //// Draw value labels along the X axis
+    //size_t step = candlesticks.size() / 10;
+    //for (size_t i = 0; i < candlesticks.size(); i += step) {
+    //    float x = offsetX + (i * scaleX);
+    //    glRasterPos2f(x, 0.1f);
+    //    std::time_t timestamp = candlesticks[i].timestamp;
+    //    std::tm tm;
+    //    localtime_s(&tm, &timestamp);
+    //    char buffer[6];
+    //    std::strftime(buffer, sizeof(buffer), "%H:%M", &tm);
+    //    std::string label(buffer);
+    //    for (char c : label) {
+    //        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+    //    }
+    //}
+
+
     size_t step = candlesticks.size() / 10;
     for (size_t i = 0; i < candlesticks.size(); i += step) {
         float x = offsetX + (i * scaleX);
         glRasterPos2f(x, 0.1f);
-        std::time_t timestamp = candlesticks[i].timestamp;
-        std::tm tm;
-        localtime_s(&tm, &timestamp);
-        char buffer[6];
-        std::strftime(buffer, sizeof(buffer), "%H:%M", &tm);
-        std::string label(buffer);
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(5) << i;
+        std::string label = oss.str();
         for (char c : label) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
         }
     }
+
+
 }
 
 
@@ -694,6 +709,29 @@ void CandlestickChart::handleKeyPress(int key, int action) {
             // Toggle RSI display
             rsi_on = !rsi_on;
         }
+        else if (key == GLFW_KEY_UP) {
+            
+            if (candlesticks.size() > maxVisibleCandles) {
+                maxVisibleCandles += 10;
+
+            }
+
+		}
+		else if (key == GLFW_KEY_DOWN) {
+			
+            if (maxVisibleCandles > 10) {
+
+                maxVisibleCandles -= 10;
+
+            }
+
+		}
+		else if (key == GLFW_KEY_ESCAPE) {
+			// Exit the application
+			glfwSetWindowShouldClose(glfwGetCurrentContext(), GLFW_TRUE);
+		}
+		
+        
         // Add more key handling as needed
     }
 }

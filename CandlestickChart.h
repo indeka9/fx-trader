@@ -23,7 +23,7 @@ public:
 	
 	CandlestickChart(int w, int h);
 	~CandlestickChart();
-
+	int maxVisibleCandles;
 	void handleKeyPress(int key, int action) override; // Override the base class method
 
 	void draw() const ;
@@ -61,7 +61,7 @@ private:
 	std::deque<float> smaValues; // Store SMA values
 	std::deque<float> emaValues; // Store EMA values
 	std::deque<float> rsiValues; // Store EMA values
-	int maxVisibleCandles;
+	
 	
 	void updatePanBounds();
 

@@ -29,7 +29,7 @@ protected:
     double lastMouseY;
     GLFWwindow* window;
     
-    float minPanX; 
+    float minPanX;
     float maxPanX;
 
     void initGL();
