@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
-	std::deque<Candlestick> candlesticks = Candlestick::generateRealisticCandlesticks(50);
+	std::deque<Candlestick> candlesticks = Candlestick::generateRealisticCandlesticks(100);
 
 
 	// Calculate SMA, EMA, and RSI
@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
 	// Set candlesticks and indicators
 	chart.setCandlesticks(candlesticks);
-
+	chart.maxVisibleCandles = 70;
 	chart.setSMA(sma);
 	chart.setEMA(ema);
 	chart.setRSI(rsi);

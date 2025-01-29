@@ -300,11 +300,11 @@ void CandlestickChart::handleMouseMove(double xpos, double ypos)
         double dx = xpos - lastMouseX;
         double dy = ypos - lastMouseY;
 
-        if (dx > 0)
+        if (dx > 100)
         {
             handleKeyPress(GLFW_KEY_RIGHT, GLFW_PRESS);
         }
-        else if (dx < 0)
+        else if (dx < 100)
         {
             handleKeyPress(GLFW_KEY_LEFT, GLFW_PRESS);
         }
