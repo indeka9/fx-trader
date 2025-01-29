@@ -24,7 +24,7 @@ public:
 	CandlestickChart(int w, int h);
 	~CandlestickChart();
 	
-	int maxVisibleCandles = 50;
+	int maxVisibleCandles = 70;
 	int curFirstCandleIndex = 0;
 
 

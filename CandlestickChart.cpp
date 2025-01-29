@@ -304,7 +304,7 @@ void CandlestickChart::handleMouseMove(double xpos, double ypos)
        
     }
 
-    if (fl) {
+    else if (fl) {
         double dx = xpos - lastMouseX;
         double dy = ypos - lastMouseY;
 
