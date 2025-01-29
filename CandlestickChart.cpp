@@ -260,6 +260,7 @@ void CandlestickChart::handleKeyPress(int key, int action) {
             panX = 0.0f;
             panY = 0.0f;
             curFirstCandleIndex = std::max(0, static_cast<int>(candlesticks.size() - maxVisibleCandles));
+            maxVisibleCandles = 70;
             break;
         case GLFW_KEY_S:
             sma_on = !sma_on;
@@ -272,6 +273,12 @@ void CandlestickChart::handleKeyPress(int key, int action) {
             break;
         case GLFW_KEY_A:
             fl = !fl;
+            break;
+        case GLFW_KEY_B:
+            maxVisibleCandles += 10;
+            break;
+        case GLFW_KEY_C:
+            maxVisibleCandles -= 10;
             break;
 
         }
