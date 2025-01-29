@@ -259,6 +259,7 @@ void CandlestickChart::handleKeyPress(int key, int action) {
             zoomLevel = 1.0f;
             panX = 0.0f;
             panY = 0.0f;
+            curFirstCandleIndex = std::max(0, static_cast<int>(candlesticks.size() - maxVisibleCandles));
             break;
         case GLFW_KEY_S:
             sma_on = !sma_on;

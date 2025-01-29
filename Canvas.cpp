@@ -112,6 +112,7 @@ void Canvas::handleScroll(double xoffset, double yoffset) {
 	
 	lastMouseX = xoffset;
 	lastMouseY = yoffset;
+
 }
 
 
