@@ -16,21 +16,6 @@ GLFWwindow* Canvas::getWindow() const {
 	return window;
 }
 
-void Canvas::renderLoop() const {
-	while (!glfwWindowShouldClose(window)) {
-		// Clear the screen
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// Render here
-		draw();
-
-		// Swap front and back buffers
-		glfwSwapBuffers(window);
-
-		// Poll for and process events
-		glfwPollEvents();
-	}
-}
 
 void Canvas::initGL() {
 
@@ -45,7 +30,7 @@ void Canvas::initGL() {
 	}
 
 	// Create a windowed mode window and its OpenGL context
-	window = glfwCreateWindow(800, 600, "EUR/USD Forex Chart", NULL, NULL);
+	window = glfwCreateWindow(width, height, "EUR/USD Forex Chart", NULL, NULL);
 	if (!window) {
 		glfwTerminate();
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -54,13 +39,6 @@ void Canvas::initGL() {
 	// Make the window's context current
 	glfwMakeContextCurrent(window);
 
-	// Initialize OpenGL settings
-	glViewport(0, 0, 800, 600);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, 10.0, 0, 10.0, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
 	// Enable anti-aliasing
 	glEnable(GL_BLEND);
@@ -151,17 +129,6 @@ void Canvas::handleMouseButton(int button, int action, int mods) {
 
 
 
-void Canvas::handleMouseMove(double xpos, double ypos) {
-	if (isPanning) {
-		double dx = xpos - lastMouseX;
-		double dy = ypos - lastMouseY;
-		panX -= dx / width * 10.0 / zoomLevel; // Adjust panX for horizontal dragging
-		panY += dy / height * 10.0 / zoomLevel;
-		lastMouseX = xpos;
-		lastMouseY = ypos;
-	}
-}
-
 
 
 void Canvas::handleFramebufferSizeCallback(int w, int h) {
@@ -171,8 +138,7 @@ void Canvas::handleFramebufferSizeCallback(int w, int h) {
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
-	glOrtho(0, 10.0 / zoomLevel , 0, 10.0 / zoomLevel , -1.0, 1.0);
+	glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -188,6 +154,6 @@ void Canvas::handleHorizontalScroll(float offset) {
 
 
 void Canvas::clampPanX() {
-	panX = std::max(minPanX, std::min(panX, maxPanX));
+	panX = std::max(-10.0f, std::min(panX, 10.0f));
 }
 

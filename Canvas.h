@@ -13,8 +13,7 @@ public:
     ~Canvas();
     GLFWwindow* getWindow() const;
     virtual void draw() const =0;
-    virtual void renderLoop() const;
-    
+       
     
 protected:
 
@@ -29,13 +28,11 @@ protected:
     double lastMouseY;
     GLFWwindow* window;
     
-    float minPanX;
-    float maxPanX;
 
     void initGL();
     void handleScroll(double xoffset, double yoffset) ;
     void handleMouseButton(int button, int action, int mods);
-    void handleMouseMove(double xpos, double ypos);
+    virtual void handleMouseMove(double xpos, double ypos) = 0;
 
     void handleFramebufferSizeCallback( int width, int height);
     void handleHorizontalScroll(float offset);

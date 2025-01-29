@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
-	std::deque<Candlestick> candlesticks = Candlestick::generateRealisticCandlesticks(100);
+	std::deque<Candlestick> candlesticks = Candlestick::generateRealisticCandlesticks(50);
 
 
 	// Calculate SMA, EMA, and RSI
@@ -20,8 +20,8 @@ int main(int argc, char** argv) {
 	std::deque<float> rsi = FxTrader::calculateRSI(candlesticks, period);
 
 
-	CandlestickChart chart(WIDTH, HEIGHT) ;
-	GLFWwindow* window =  chart.getWindow();
+	CandlestickChart chart(WIDTH, HEIGHT);
+	GLFWwindow* window = chart.getWindow();
 
 	if (!window) return -1;
 	glfwSetWindowUserPointer(window, &chart);
@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
 	const Candlestick::Period timerperiod = Candlestick::Period::ONE_MINUTE; // Set the period
 
-	
+
 	while (!glfwWindowShouldClose(window)) {
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -58,19 +58,20 @@ int main(int argc, char** argv) {
 			chart.setSMA(sma);
 			chart.setEMA(ema);
 			chart.setRSI(rsi);
-			chart.move_left(); // Move the chart to the left when a new candle is added
 			
+			chart.curFirstCandleIndex = std::max(0, static_cast<int>(candlesticks.size() - chart.maxVisibleCandles));
+
 		}
 
 		chart.draw();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		
+
 	}
 
-	
-	
+
+
 
 	return 0;
 

@@ -1,7 +1,7 @@
 #include "CandlestickChart.h"
 
 
-CandlestickChart::CandlestickChart(int w, int h) : Canvas(w, h), maxVisibleCandles(80){
+CandlestickChart::CandlestickChart(int w, int h) : Canvas(w, h){
 
 }
 
@@ -10,21 +10,20 @@ CandlestickChart::~CandlestickChart() {
 }
 
 
-void CandlestickChart::draw() const{
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    //glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
-    glOrtho(0, 10.0 / zoomLevel , 0, 10.0 / zoomLevel , -1.0, 1.0);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+void CandlestickChart::draw() const
+{
 
-    drawBackground();
-    drawGrid();
-    drawAxes();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	drawBackground();
+	drawGrid(); 
     drawCandlesticks();
-    //drawVolumeBars();
+    drawAxes();
 
     if (sma_on) drawSMA();  // Draw SMA line
     if (ema_on) drawEMA();  // Draw EMA line
@@ -32,20 +31,12 @@ void CandlestickChart::draw() const{
     drawLegend();
 }
 
-void CandlestickChart::move_left() {
-    // Move the chart to the left by one candle width
-    float candleWidth = 9.6f / maxVisibleCandles;
-    panX += candleWidth;
-
-    // Clamp panX to ensure it stays within valid bounds
-    clampPanX();
-}
-
 void CandlestickChart::setCandlesticks(const std::deque<Candlestick>& candles) {
 
     candlesticks = candles;
-    updatePanBounds();
+   
 }
+
 
 
 
@@ -77,166 +68,6 @@ void CandlestickChart::drawGrid() const {
 }
 
 
-void CandlestickChart::drawAxes()const {
-
-    float maxCandleValue = Candlestick::findMaxValue(candlesticks);
-    float minCandleValue = Candlestick::findMinValue(candlesticks);
-    float scaleX = 9.6f / candlesticks.size();
-    float scaleY = 9.6f / (maxCandleValue - minCandleValue);
-    float offsetX = 0.2f;
-    
-    
-    // Draw Y axis
-    glColor3f(1.0f, 1.0f, 0.0f); // Yellow color for Y axis
-    glBegin(GL_LINES);
-    glVertex2f(0.2f, 0.2f);
-    glVertex2f(0.2f, 10.0f);
-    glEnd();
-
-    // Draw X axis
-    glColor3f(0.0f, 1.0f, 1.0f); // Cyan color for X axis
-    glBegin(GL_LINES);
-    glVertex2f(10.0f, 0.2f);
-    glVertex2f(0.2f, 0.2f);
-    glEnd();
-
-    // Label the axes
-    glColor3f(1.0f, 1.0f, 1.0f); // White color for labels
-    glRasterPos2f(9.5f, .5f);
-    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 'X');
-    glRasterPos2f(0.5f, 9.5f);
-    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 'Y');
-
-    // Draw value labels along the Y axis
-    for (float i = 0.2f; i <= 10.0f; i += 1.0f) {
-        glRasterPos2f(0.1f, i);
-        float value = (i - 0.2f) / scaleY + findMinValue(candlesticks);
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(5) << value;
-        std::string label = oss.str();
-        for (char c : label) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-        }
-    }
-
-
-    //// Draw value labels along the X axis
-    //size_t step = candlesticks.size() / 10;
-    //for (size_t i = 0; i < candlesticks.size(); i += step) {
-    //    float x = offsetX + (i * scaleX);
-    //    glRasterPos2f(x, 0.1f);
-    //    std::time_t timestamp = candlesticks[i].timestamp;
-    //    std::tm tm;
-    //    localtime_s(&tm, &timestamp);
-    //    char buffer[6];
-    //    std::strftime(buffer, sizeof(buffer), "%H:%M", &tm);
-    //    std::string label(buffer);
-    //    for (char c : label) {
-    //        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-    //    }
-    //}
-
-
-    size_t step = candlesticks.size() / 10;
-    for (size_t i = 0; i < candlesticks.size(); i += step) {
-        float x = offsetX + (i * scaleX);
-        glRasterPos2f(x, 0.1f);
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(5) << i;
-        std::string label = oss.str();
-        for (char c : label) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-        }
-    }
-
-
-}
-
-
-// In CandlestickChart.cpp
-void CandlestickChart::drawLegend() const {
-
-    
-    if ((sma_on || ema_on || rsi_on) ==false) return ;
-
-    float legendX = 1.5f;
-    float legendY = 9.7f;
-    float legendWidth = 1.5f;
-    float legendHeight = 0.7f;
-    float padding = 0.2f;
-
-    // Draw the background rectangle for the legend
-    glColor4f(0.0f, 0.0f, 0.0f, 0.7f); // Semi-transparent black background
-    glBegin(GL_QUADS);
-    glVertex2f(legendX, legendY);
-    glVertex2f(legendX + legendWidth, legendY);
-    glVertex2f(legendX + legendWidth, legendY - legendHeight);
-    glVertex2f(legendX, legendY - legendHeight);
-    glEnd();
-
-    // Draw the border
-    glColor3f(1.0f, 1.0f, 1.0f); // White border
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(legendX, legendY);
-    glVertex2f(legendX + legendWidth, legendY);
-    glVertex2f(legendX + legendWidth, legendY - legendHeight);
-    glVertex2f(legendX, legendY - legendHeight);
-    glEnd();
-
-    float itemY = legendY - padding;
-
-    
-    
-    // Draw the legend items
-    if (sma_on)
-    {
-        glColor3f(0.0f, 0.0f, 1.0f); // Blue color for SMA
-        glBegin(GL_LINES);
-        glVertex2f(legendX + padding, itemY);
-        glVertex2f(legendX + padding + 0.5f, itemY);
-        glEnd();
-        glColor3f(1.0f, 1.0f, 1.0f); // White text
-        glRasterPos2f(legendX + padding + 0.6f, itemY - 0.05f);
-        std::string smaText = "SMA";
-        for (char c : smaText) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-        }
-    }
-
-    if (ema_on)
-    {
-        itemY -= 0.2f;
-        glColor3f(1.0f, 0.0f, 1.0f); // Magenta color for EMA
-        glBegin(GL_LINES);
-        glVertex2f(legendX + padding, itemY);
-        glVertex2f(legendX + padding + 0.5f, itemY);
-        glEnd();
-        glColor3f(1.0f, 1.0f, 1.0f); // White text
-        glRasterPos2f(legendX + padding + 0.6f, itemY - 0.05f);
-        std::string emaText = "EMA";
-        for (char c : emaText) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-        }
-    }
-
-    if (rsi_on)
-    {
-
-        itemY -= 0.2f;
-        glColor3f(0.5f, 0.7f, 1.0f); // Blue color for SMA line
-        glBegin(GL_LINES);
-        glVertex2f(legendX + padding, itemY);
-        glVertex2f(legendX + padding + 0.5f, itemY);
-        glEnd();
-        glColor3f(1.0f, 1.0f, 1.0f); // White text
-        glRasterPos2f(legendX + padding + 0.6f, itemY - 0.05f);
-        std::string rsiText = "RSI";
-        for (char c : rsiText) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-        }
-    }
-}
-
 void CandlestickChart::drawCandlesticks() const {
     // Clamp panX to ensure it stays within valid bounds
     const_cast<CandlestickChart*>(this)->clampPanX();
@@ -252,21 +83,21 @@ void CandlestickChart::drawCandlesticks() const {
     glfwGetCursorPos(glfwGetCurrentContext(), &mouseX, &mouseY);
 
     // Convert mouse position to world coordinates
-    //float worldMouseX = panX + (mouseX / width) * (10.0f / zoomLevel);
-    //float worldMouseY = panY + ((height - mouseY) / height) * (10.0f / zoomLevel);
-    float worldMouseX = (mouseX / width) * (10.0f / zoomLevel);
-    float worldMouseY = ((height - mouseY) / height) * (10.0f / zoomLevel);
+    float worldMouseX = panX + (mouseX / width) * (10.0f / zoomLevel);
+    float worldMouseY = panY + ((height - mouseY) / height) * (10.0f / zoomLevel);
 
 
     // Calculate the start and end indices for visible candles
-    int startIndex = static_cast<int>(panX / scaleX);
+    int startIndex = curFirstCandleIndex;
     int endIndex = std::min(startIndex + maxVisibleCandles, static_cast<int>(candlesticks.size()));
 
     // Draw visible candlesticks
     for (int i = startIndex; i < endIndex; ++i) {
         bool isHovered = isMouseHovering(worldMouseX, worldMouseY, static_cast<float>(i - startIndex), candlesticks[i], scaleX, scaleY, offsetX, offsetY);
         drawCandlestick(static_cast<float>(i - startIndex), candlesticks[i], scaleX, scaleY, offsetX, offsetY, isHovered);
+        
     }
+
 
     // Draw tooltips for visible candlesticks
     for (int i = startIndex; i < endIndex; ++i) {
@@ -331,26 +162,156 @@ void CandlestickChart::drawCandlestick(float x, const Candlestick& cs, float sca
 }
 
 
-void CandlestickChart::drawVolumeBars(const std::deque<Candlestick>& candles, float scaleX, float scaleY, float offsetX, float offsetY) {
-    float padding = 0.2f; // Add padding to the x-axis
-    for (size_t i = 0; i < candles.size(); ++i) {
-        float volumeHeight = (candles[i].volume * scaleY) / 10.0f; // Scale volume height
-        if (candles[i].close > candles[i].open) {
-            glColor4f(0.0f, 1.0f, 0.0f, 0.5f); // Semi-transparent green for up volume bars
+
+void CandlestickChart::drawAxes()const {
+
+    float maxCandleValue = findMaxValue(candlesticks);
+    float minCandleValue = findMinValue(candlesticks);
+    float scaleX = 9.6f / maxVisibleCandles;
+    float scaleY = 9.6f / (maxCandleValue - minCandleValue);
+    float offsetX = 0.16f;
+
+
+    // Draw Y axis
+    glColor3f(1.0f, 1.0f, 0.0f); // Yellow color for Y axis
+    glBegin(GL_LINES);
+    glVertex2f(0.2f, 0.2f);
+    glVertex2f(0.2f, 10.0f);
+    glEnd();
+
+    // Draw X axis
+    glColor3f(0.0f, 1.0f, 1.0f); // Cyan color for X axis
+    glBegin(GL_LINES);
+    glVertex2f(10.0f, 0.2f);
+    glVertex2f(0.2f, 0.2f);
+    glEnd();
+
+    // Label the axes
+    glColor3f(1.0f, 1.0f, 1.0f); // White color for labels
+    glRasterPos2f(9.5f, .5f);
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 'X');
+    glRasterPos2f(0.5f, 9.5f);
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 'Y');
+
+    // Draw value labels along the Y axis
+    for (float i = 0.2f; i <= 10.0f; i += 1.0f) {
+        glRasterPos2f(0.1f, i);
+        float value = (i - 0.2f) / scaleY + findMinValue(candlesticks);
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(5) << value;
+        std::string label = oss.str();
+        for (char c : label) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
         }
-        else {
-            glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Semi-transparent red for down volume bars
-        }
-        glBegin(GL_QUADS);
-        glVertex2f(offsetX + padding + (i * scaleX) - (scaleX / 4), offsetY);
-        glVertex2f(offsetX + padding + (i * scaleX) + (scaleX / 4), offsetY);
-        glVertex2f(offsetX + padding + (i * scaleX) + (scaleX / 4), offsetY + volumeHeight);
-        glVertex2f(offsetX + padding + (i * scaleX) - (scaleX / 4), offsetY + volumeHeight);
-        glEnd();
     }
+
+
+
+    size_t step = maxVisibleCandles / 10;
+    int startIndex = curFirstCandleIndex;
+    int endIndex = std::min(startIndex + maxVisibleCandles, static_cast<int>(candlesticks.size()));
+
+
+
+    for (int i = startIndex; i < endIndex; i += step) {
+        glRasterPos2f(offsetX + 0.2f + (static_cast<float>(i - startIndex) * scaleX), 0.1f);
+
+        std::time_t timestamp = candlesticks[i].timestamp;
+        std::tm tm;
+        localtime_s(&tm, &timestamp);
+        char buffer[6];
+        std::strftime(buffer, sizeof(buffer), "%H:%M", &tm);
+        std::string label(buffer);
+        for (char c : label) {
+              glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+        }
+    }
+
+
 }
 
 
+
+// CandlestickChart.cpp
+void CandlestickChart::handleKeyPress(int key, int action) {
+
+	if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_LEFT:
+            if (candlesticks.size() > 0) {
+                curFirstCandleIndex = std::max(0, curFirstCandleIndex - 1);
+            }
+            break;
+        case GLFW_KEY_RIGHT:
+            if (candlesticks.size() >= curFirstCandleIndex) curFirstCandleIndex += 1;
+            break;
+
+        case GLFW_KEY_ESCAPE:
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+            break;
+        case GLFW_KEY_UP:
+            handleHorizontalScroll(0.1f);
+            break;
+        case GLFW_KEY_DOWN:
+            handleHorizontalScroll(-0.1f);
+            break;
+        case GLFW_KEY_Z:
+            zoomLevel = 1.0f;
+            panX = 0.0f;
+            panY = 0.0f;
+            break;
+        case GLFW_KEY_S:
+            sma_on = !sma_on;
+            break;
+        case GLFW_KEY_E:
+            ema_on = !ema_on;
+            break;
+        case GLFW_KEY_R:
+            rsi_on = !rsi_on;
+            break;
+        case GLFW_KEY_A:
+            fl = !fl;
+            break;
+
+        }
+	}
+    else if (action == GLFW_RELEASE) {
+		switch (key) {
+		case GLFW_KEY_A:
+            fl = false;
+			break;
+		}
+    }
+}
+
+void CandlestickChart::handleMouseMove(double xpos, double ypos)
+{
+    if (isPanning) {
+        double dx = xpos - lastMouseX;
+        double dy = ypos - lastMouseY;
+        panX -= dx / width * 10.0 / zoomLevel; // Adjust panX for horizontal dragging
+        panY += dy / height * 10.0 / zoomLevel;
+        lastMouseX = xpos;
+        lastMouseY = ypos;
+       
+    }
+
+    if (fl) {
+        double dx = xpos - lastMouseX;
+        double dy = ypos - lastMouseY;
+
+        if (dx > 0)
+        {
+            handleKeyPress(GLFW_KEY_RIGHT, GLFW_PRESS);
+        }
+        else if (dx < 0)
+        {
+            handleKeyPress(GLFW_KEY_LEFT, GLFW_PRESS);
+        }
+    }
+
+    
+}
 
 // In CandlestickChart.cpp
 bool CandlestickChart::isMouseHovering(float mouseX, float mouseY, float x, const Candlestick& cs, float scaleX, float scaleY, float offsetX, float offsetY) const {
@@ -368,111 +329,7 @@ bool CandlestickChart::isMouseHovering(float mouseX, float mouseY, float x, cons
 }
 
 
-
-
-void CandlestickChart::drawRoundedRect(float x, float y, float width, float height, float radius) const {
-//    int numSegments = 16; // Number of segments to approximate the rounded corners
-//    float theta = 2.0f * 3.1415926f / float(numSegments);
-//    float tangetialFactor = tanf(theta);
-//    float radialFactor = cosf(theta);
-//
-//    // Draw the four corners
-//    float cx = radius;
-//    float cy = 0.0f;
-//
-//    // Top-right corner
-//    glBegin(GL_TRIANGLE_FAN);
-//    glVertex2f(x + width - radius, y + height - radius);
-//    for (int i = 0; i <= numSegments; i++) {
-//        glVertex2f(x + width - radius + cx, y + height - radius + cy);
-//        float tx = -cy;
-//        float ty = cx;
-//        cx += tx * tangetialFactor;
-//        cy += ty * tangetialFactor;
-//        cx *= radialFactor;
-//        cy *= radialFactor;
-//    }
-//    glEnd();
-//
-//    // Top-left corner
-//    cx = radius;
-//    cy = 0.0f;
-//    glBegin(GL_TRIANGLE_FAN);
-//    glVertex2f(x + radius, y + height - radius);
-//    for (int i = 0; i <= numSegments; i++) {
-//        glVertex2f(x + radius - cx, y + height - radius + cy);
-//        float tx = -cy;
-//        float ty = cx;
-//        cx += tx * tangetialFactor;
-//        cy += ty * tangetialFactor;
-//        cx *= radialFactor;
-//        cy *= radialFactor;
-//    }
-//    glEnd();
-//
-//    // Bottom-left corner
-//    cx = radius;
-//    cy = 0.0f;
-//    glBegin(GL_TRIANGLE_FAN);
-//    glVertex2f(x + radius, y + radius);
-//    for (int i = 0; i <= numSegments; i++) {
-//        glVertex2f(x + radius - cx, y + radius - cy);
-//        float tx = -cy;
-//        float ty = cx;
-//        cx += tx * tangetialFactor;
-//        cy += ty * tangetialFactor;
-//        cx *= radialFactor;
-//        cy *= radialFactor;
-//    }
-//    glEnd();
-//
-//    // Bottom-right corner
-//    cx = radius;
-//    cy = 0.0f;
-//    glBegin(GL_TRIANGLE_FAN);
-//    glVertex2f(x + width - radius, y + radius);
-//    for (int i = 0; i <= numSegments; i++) {
-//        glVertex2f(x + width - radius + cx, y + radius - cy);
-//        float tx = -cy;
-//        float ty = cx;
-//        cx += tx * tangetialFactor;
-//        cy += ty * tangetialFactor;
-//        cx *= radialFactor;
-//        cy *= radialFactor;
-//    }
-//    glEnd();
-//
-//    // Draw the four edges
-//    glBegin(GL_QUADS);
-//    // Top edge
-//    glVertex2f(x + radius, y + height);
-//    glVertex2f(x + width - radius, y + height);
-//    glVertex2f(x + width - radius, y + height - radius);
-//    glVertex2f(x + radius, y + height - radius);
-//
-//    // Bottom edge
-//    glVertex2f(x + radius, y);
-//    glVertex2f(x + width - radius, y);
-//    glVertex2f(x + width - radius, y + radius);
-//    glVertex2f(x + radius, y + radius);
-//
-//    // Left edge
-//    glVertex2f(x, y + radius);
-//    glVertex2f(x + radius, y + radius);
-//    glVertex2f(x + radius, y + height - radius);
-//    glVertex2f(x, y + height - radius);
-//
-//    // Right edge
-//    glVertex2f(x + width, y + radius);
-//    glVertex2f(x + width - radius, y + radius);
-//    glVertex2f(x + width - radius, y + height - radius);
-//    glVertex2f(x + width, y + height - radius);
-//    glEnd();
-}
-
-
-
-void CandlestickChart::drawTooltip(int index,float mouseX, float mouseY, const Candlestick& cs) const {
+void CandlestickChart::drawTooltip(int index, float mouseX, float mouseY, const Candlestick& cs) const {
     // Convert mouse coordinates to world coordinates
     float worldMouseX = panX + (mouseX / width) * (10.0f / zoomLevel);
     float worldMouseY = panY + ((height - mouseY) / height) * (10.0f / zoomLevel);
@@ -480,7 +337,7 @@ void CandlestickChart::drawTooltip(int index,float mouseX, float mouseY, const C
     // Create the tooltip text
     std::stringstream ss;
 
-    
+
     if (sma_on && index < smaValues.size() && !std::isnan(smaValues[index])) {
         ss << "\nSMA:   " << std::fixed << std::setprecision(5) << smaValues[index];
     }
@@ -497,7 +354,7 @@ void CandlestickChart::drawTooltip(int index,float mouseX, float mouseY, const C
         << "Close: " << std::fixed << std::setprecision(5) << cs.close;
 
     // Add SMA, EMA, and RSI values if the corresponding flags are enabled
-    
+
 
 
     std::string tooltipText = ss.str();
@@ -573,6 +430,105 @@ void CandlestickChart::drawTooltip(int index,float mouseX, float mouseY, const C
 }
 
 
+// In CandlestickChart.cpp
+void CandlestickChart::drawLegend() const {
+
+
+    if ((sma_on || ema_on || rsi_on) == false) return;
+
+    float legendX = 1.5f;
+    float legendY = 9.7f;
+    float legendWidth = 1.5f;
+    float legendHeight = 0.7f;
+    float padding = 0.2f;
+
+    // Draw the background rectangle for the legend
+    glColor4f(0.0f, 0.0f, 0.0f, 0.7f); // Semi-transparent black background
+    glBegin(GL_QUADS);
+    glVertex2f(legendX, legendY);
+    glVertex2f(legendX + legendWidth, legendY);
+    glVertex2f(legendX + legendWidth, legendY - legendHeight);
+    glVertex2f(legendX, legendY - legendHeight);
+    glEnd();
+
+    // Draw the border
+    glColor3f(1.0f, 1.0f, 1.0f); // White border
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(legendX, legendY);
+    glVertex2f(legendX + legendWidth, legendY);
+    glVertex2f(legendX + legendWidth, legendY - legendHeight);
+    glVertex2f(legendX, legendY - legendHeight);
+    glEnd();
+
+    float itemY = legendY - padding;
+
+
+
+    // Draw the legend items
+    if (sma_on)
+    {
+        glColor3f(0.0f, 0.0f, 1.0f); // Blue color for SMA
+        glBegin(GL_LINES);
+        glVertex2f(legendX + padding, itemY);
+        glVertex2f(legendX + padding + 0.5f, itemY);
+        glEnd();
+        glColor3f(1.0f, 1.0f, 1.0f); // White text
+        glRasterPos2f(legendX + padding + 0.6f, itemY - 0.05f);
+        std::string smaText = "SMA";
+        for (char c : smaText) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+        }
+    }
+
+    if (ema_on)
+    {
+        itemY -= 0.2f;
+        glColor3f(1.0f, 0.0f, 1.0f); // Magenta color for EMA
+        glBegin(GL_LINES);
+        glVertex2f(legendX + padding, itemY);
+        glVertex2f(legendX + padding + 0.5f, itemY);
+        glEnd();
+        glColor3f(1.0f, 1.0f, 1.0f); // White text
+        glRasterPos2f(legendX + padding + 0.6f, itemY - 0.05f);
+        std::string emaText = "EMA";
+        for (char c : emaText) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+        }
+    }
+
+    if (rsi_on)
+    {
+
+        itemY -= 0.2f;
+        glColor3f(0.5f, 0.7f, 1.0f); // Blue color for SMA line
+        glBegin(GL_LINES);
+        glVertex2f(legendX + padding, itemY);
+        glVertex2f(legendX + padding + 0.5f, itemY);
+        glEnd();
+        glColor3f(1.0f, 1.0f, 1.0f); // White text
+        glRasterPos2f(legendX + padding + 0.6f, itemY - 0.05f);
+        std::string rsiText = "RSI";
+        for (char c : rsiText) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+        }
+    }
+}
+
+
+// In CandlestickChart.cpp
+void CandlestickChart::setSMA(const std::deque<float>& sma) {
+    smaValues = sma;
+}
+
+void CandlestickChart::setEMA(const std::deque<float>& ema) {
+    emaValues = ema;
+}
+
+void CandlestickChart::setRSI(const std::deque<float>& rsi) {
+    rsiValues = rsi;
+}
+
+
 
 
 void CandlestickChart::drawRSI() const {
@@ -588,7 +544,7 @@ void CandlestickChart::drawRSI() const {
     float offsetY = 0.2f - (RSI_MIN * scaleY); // Y-axis offset (bottom margin)
 
     // Calculate the start and end indices for visible candles
-    int startIndex = static_cast<int>(panX / scaleX);
+    int startIndex = curFirstCandleIndex;
     int endIndex = std::min(startIndex + maxVisibleCandles, static_cast<int>(candlesticks.size()));
 
     glColor3f(0.0f, 1.0f, 1.0f); // Cyan color for RSI
@@ -613,7 +569,7 @@ void CandlestickChart::drawSMA() const {
     float offsetY = 0.2f - (minCandleValue * scaleY);
 
     // Calculate the start and end indices for visible candles
-    int startIndex = static_cast<int>(panX / scaleX);
+    int startIndex = curFirstCandleIndex;
     int endIndex = std::min(startIndex + maxVisibleCandles, static_cast<int>(candlesticks.size()));
 
     glColor3f(0.0f, 0.0f, 1.0f); // Blue color for SMA
@@ -639,7 +595,7 @@ void CandlestickChart::drawEMA() const {
     float offsetY = 0.2f - (minCandleValue * scaleY);
 
     // Calculate the start and end indices for visible candles
-    int startIndex = static_cast<int>(panX / scaleX);
+    int startIndex = curFirstCandleIndex;
     int endIndex = std::min(startIndex + maxVisibleCandles, static_cast<int>(candlesticks.size()));
 
     glColor3f(1.0f, 0.0f, 1.0f); // Magenta color for EMA
@@ -654,6 +610,7 @@ void CandlestickChart::drawEMA() const {
 }
 
 
+
 float CandlestickChart::findMaxValue(const std::deque<Candlestick>& candles) {
     return std::max_element(candles.begin(), candles.end(),
         [](const Candlestick& a, const Candlestick& b) {
@@ -666,89 +623,4 @@ float CandlestickChart::findMinValue(const std::deque<Candlestick>& candles) {
         [](const Candlestick& a, const Candlestick& b) { return a.low < b.low; })->low;
 }
 
-// In CandlestickChart.cpp
-void CandlestickChart::setSMA(const std::deque<float>& sma) {
-    smaValues = sma;
-}
 
-void CandlestickChart::setEMA(const std::deque<float>& ema) {
-    emaValues = ema;
-}
-
-void CandlestickChart::setRSI(const std::deque<float>& rsi) {
-    rsiValues = rsi;
-}
-
-
-// CandlestickChart.cpp
-void CandlestickChart::handleKeyPress(int key, int action) {
-    if (action == GLFW_PRESS) {
-        if (key == GLFW_KEY_R) {
-            zoomLevel = 1.0f;
-            panX = 0.0f;
-            panY = 0.0f;
-        }
-        // Handle left and right arrow keys for horizontal scrolling
-        else if (key == GLFW_KEY_LEFT) {
-            handleHorizontalScroll(-1.0f); // Scroll left
-        }
-        else if (key == GLFW_KEY_RIGHT) {
-            handleHorizontalScroll(1.0f); // Scroll right
-        }
-
-        else if (key == GLFW_KEY_S) {
-            // Toggle SMA display
-            sma_on = !sma_on;
-        }
-
-        else if (key == GLFW_KEY_E) {
-            // Toggle EMA display
-            ema_on = !ema_on;
-        }
-        else if (key == GLFW_KEY_I) {
-            // Toggle RSI display
-            rsi_on = !rsi_on;
-        }
-        else if (key == GLFW_KEY_UP) {
-            
-            if (candlesticks.size() > maxVisibleCandles) {
-                maxVisibleCandles += 10;
-
-            }
-
-		}
-		else if (key == GLFW_KEY_DOWN) {
-			
-            if (maxVisibleCandles > 10) {
-
-                maxVisibleCandles -= 10;
-
-            }
-
-		}
-		else if (key == GLFW_KEY_ESCAPE) {
-			// Exit the application
-			glfwSetWindowShouldClose(glfwGetCurrentContext(), GLFW_TRUE);
-		}
-		
-        
-        // Add more key handling as needed
-    }
-}
-
-
-
-void CandlestickChart::updatePanBounds() {
-    // Calculate the total width of the candlestick data in world coordinates
-    float totalWidth = candlesticks.size() * (9.6f / maxVisibleCandles);
-
-    // Calculate the minimum and maximum panX values
-    minPanX = 0.0f; // Start at the first candle
-    maxPanX = totalWidth - 10.0f; // End at the last candle, adjusted for the chart width
-
-    // Ensure maxPanX is not negative (if there are fewer candles than the visible area)
-    maxPanX = std::max(0.0f, maxPanX);
-
-    // Clamp the current panX to the new bounds
-    clampPanX();
-}
