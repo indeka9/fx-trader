@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 			chart.setEMA(ema);
 			chart.setRSI(rsi);
 			
-			chart.curFirstCandleIndex = std::max(0, static_cast<int>(candlesticks.size() - chart.maxVisibleCandles));
+			//chart.curFirstCandleIndex = std::max(0, static_cast<int>(candlesticks.size() - chart.maxVisibleCandles));
 
 		}
 
