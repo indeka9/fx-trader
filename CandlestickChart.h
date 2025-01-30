@@ -15,8 +15,11 @@
 #include <algorithm>
 #include <random>
 #include "Chart.h"
+#include <fstream>
 
 
+
+#include <string>
 
 class CandlestickChart : public Canvas, Chart {
 public:
@@ -27,6 +30,7 @@ public:
 	int maxVisibleCandles = 70;
 	int curFirstCandleIndex = 0;
 
+	void loadDataFromCSV(const std::string& filename);
 
 	void handleKeyPress(int key, int action) override; // Override the base class method
 	void handleMouseMove(double xpos, double ypos) override; // Override the base class method
@@ -38,6 +42,7 @@ public:
 	void drawCandlesticks() const;
 
 	void setCandlesticks(const std::deque<Candlestick>& candles) ;
+	std::deque<Candlestick> getCandlesticks() const;
 	bool isMouseHovering(float mouseX, float mouseY, float x, const Candlestick& cs, float scaleX, float scaleY, float offsetX, float offsetY) const;
 	void drawTooltip(int index, float mouseX, float mouseY, const Candlestick& cs) const;
 	void drawLegend() const;
@@ -50,7 +55,8 @@ public:
 	bool sma_on = false;
 	bool ema_on = false;
 	bool rsi_on = false;
-
+	bool crosshair = false;
+	void drawCrosshair() const;
 
 private:
 	

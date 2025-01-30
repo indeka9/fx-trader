@@ -34,7 +34,7 @@ public:
     static float findMinValue(const std::deque<Candlestick>& candles);
 
     // Method to generate realistic candlesticks
-    static std::deque<Candlestick> generateRealisticCandlesticks(int n);
+    static std::deque<Candlestick> generateRealisticCandlesticks(int n, Candlestick::Period p);
     static std::deque<Candlestick> generateRealisticCandlesticks(std::deque<Candlestick> candlesticks, int n);
 
     // Member variables

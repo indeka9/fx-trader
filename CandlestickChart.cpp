@@ -10,18 +10,16 @@ CandlestickChart::~CandlestickChart() {
 }
 
 
+void CandlestickChart::draw() const {
+ 
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-void CandlestickChart::draw() const
-{
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(panX, 10.0 / zoomLevel + panX, panY, 10.0 / zoomLevel + panY, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	drawBackground();
-	drawGrid(); 
+    drawBackground();
+    drawGrid();
     drawCandlesticks();
     drawAxes();
 
@@ -29,6 +27,9 @@ void CandlestickChart::draw() const
     if (ema_on) drawEMA();  // Draw EMA line
     if (rsi_on) drawRSI();  // Draw RSI line
     drawLegend();
+
+    if (crosshair) drawCrosshair();
+   
 }
 
 void CandlestickChart::setCandlesticks(const std::deque<Candlestick>& candles) {
@@ -37,6 +38,10 @@ void CandlestickChart::setCandlesticks(const std::deque<Candlestick>& candles) {
    
 }
 
+std::deque<Candlestick> CandlestickChart::getCandlesticks() const
+{
+    return candlesticks;
+}
 
 
 
@@ -215,6 +220,10 @@ void CandlestickChart::drawAxes()const {
 
     for (int i = startIndex; i < endIndex; i += step) {
         glRasterPos2f(offsetX + 0.2f + (static_cast<float>(i - startIndex) * scaleX), 0.1f);
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, '|');
+
+
+        glRasterPos2f(offsetX + 0.3f + (static_cast<float>(i - startIndex) * scaleX), 0.1f);
 
         std::time_t timestamp = candlesticks[i].timestamp;
         std::tm tm;
@@ -232,6 +241,36 @@ void CandlestickChart::drawAxes()const {
 
 
 
+void CandlestickChart::loadDataFromCSV(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream ss(line);
+        Candlestick candle;
+        std::string token;
+
+        std::getline(ss, token, ',');
+        candle.open = std::stod(token);
+        std::getline(ss, token, ',');
+        candle.high = std::stod(token);
+        std::getline(ss, token, ',');
+        candle.low = std::stod(token);
+        std::getline(ss, token, ',');
+        candle.close = std::stod(token);
+        std::getline(ss, token, ',');
+        candle.volume = std::stod(token);
+        std::getline(ss, token, ',');
+        candle.timestamp = std::stoll(token);
+
+        candlesticks.push_back(candle);
+    }
+    file.close();
+}
 // CandlestickChart.cpp
 void CandlestickChart::handleKeyPress(int key, int action) {
 
@@ -280,7 +319,10 @@ void CandlestickChart::handleKeyPress(int key, int action) {
         case GLFW_KEY_C:
             maxVisibleCandles -= 10;
             break;
-
+        case GLFW_KEY_X:
+			crosshair = !crosshair; 
+            break;
+            
         }
 	}
     else if (action == GLFW_RELEASE) {
@@ -335,6 +377,7 @@ bool CandlestickChart::isMouseHovering(float mouseX, float mouseY, float x, cons
     return mouseX >= candlestickX - candlestickWidth && mouseX <= candlestickX + candlestickWidth &&
         mouseY >= scaledLow && mouseY <= scaledHigh;
 }
+
 
 
 void CandlestickChart::drawTooltip(int index, float mouseX, float mouseY, const Candlestick& cs) const {
@@ -536,7 +579,55 @@ void CandlestickChart::setRSI(const std::deque<float>& rsi) {
     rsiValues = rsi;
 }
 
+void CandlestickChart::drawCrosshair() const {
 
+    float maxCandleValue = Candlestick::findMaxValue(candlesticks);
+    float minCandleValue = Candlestick::findMinValue(candlesticks);
+    float scaleX = 9.6f / maxVisibleCandles; // Scale based on visible candles
+    float scaleY = 9.6f / (maxCandleValue - minCandleValue);
+    float offsetX = 0.2f;
+    float offsetY = 0.2f - (minCandleValue * scaleY);
+    // Get mouse position
+    double mouseX, mouseY;
+    glfwGetCursorPos(glfwGetCurrentContext(), &mouseX, &mouseY);
+
+    // Convert mouse position to world coordinates
+    float worldMouseX = panX + (mouseX / width) * (10.0f / zoomLevel);
+    float worldMouseY = panY + ((height - mouseY) / height) * (10.0f / zoomLevel);
+
+    // Check if mouse is hovering over any candlestick
+    bool isHovering = false;
+    for (int i = curFirstCandleIndex; i < curFirstCandleIndex + maxVisibleCandles && i < candlesticks.size(); ++i) {
+        if (isMouseHovering(worldMouseX, worldMouseY, static_cast<float>(i - curFirstCandleIndex), candlesticks[i], scaleX, scaleY, offsetX, offsetY)) {
+
+            // Set the color for the crosshair (e.g., white)
+            glColor3f(1.0f, 1.0f, 1.0f);
+            // Example: Change crosshair color to yellow
+
+            //glColor3f(1.0f, 1.0f, 0.0f);
+
+            // Example: Increase line thickness
+            glLineWidth(0.5f);
+
+            // Draw vertical line
+            glBegin(GL_LINES);
+            glVertex2f(worldMouseX, 0.0f);
+            glVertex2f(worldMouseX, 10.0f);
+            glEnd();
+
+            // Draw horizontal line
+            glBegin(GL_LINES);
+            glVertex2f(0.0f, worldMouseY);
+            glVertex2f(10.0f, worldMouseY);
+            glEnd();
+            break;
+        }
+    }
+
+    
+
+
+}
 
 
 void CandlestickChart::drawRSI() const {

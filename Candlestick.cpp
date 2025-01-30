@@ -15,7 +15,7 @@ float Candlestick::findMinValue(const std::deque<Candlestick>& candles) {
 }
 
 // Method to generate realistic candlesticks
-std::deque<Candlestick> Candlestick::generateRealisticCandlesticks(int n) {
+std::deque<Candlestick> Candlestick::generateRealisticCandlesticks(int n, Candlestick::Period p) {
     std::deque<Candlestick> candlesticks(n);
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -23,6 +23,10 @@ std::deque<Candlestick> Candlestick::generateRealisticCandlesticks(int n) {
     // Randomize the starting price within a reasonable range (e.g., 1.0000 to 1.2000 for EUR/USD)
     std::uniform_real_distribution<> startPriceDist(1.0000, 1.2000);
     float startPrice = startPriceDist(gen);
+
+    static float laststartPrice = startPrice;
+    
+
 
     // Increase volatility for more significant price movements
     float volatility = 0.0050f; // Higher volatility for larger price swings
@@ -35,10 +39,11 @@ std::deque<Candlestick> Candlestick::generateRealisticCandlesticks(int n) {
     std::uniform_int_distribution<> timeIntervalDist(50, 70); // Random interval between 50 and 70 seconds
 
     std::time_t currentTime = std::time(nullptr); // Current time
+    static float laststartTime = currentTime;
 
     for (int i = 0; i < n; ++i) {
         if (i == 0) {
-            candlesticks[i].open = startPrice;
+            candlesticks[i].open = laststartPrice;
         } else {
             candlesticks[i].open = candlesticks[i - 1].close;
         }
@@ -58,8 +63,12 @@ std::deque<Candlestick> Candlestick::generateRealisticCandlesticks(int n) {
         candlesticks[i].volume = volumeDist(gen);
 
         // Set timestamp with random intervals
-        currentTime += timeIntervalDist(gen); // Add random time interval
-        candlesticks[i].timestamp = currentTime;
+        
+        //laststartTime += timeIntervalDist(gen); // Add random time interval
+        laststartTime += 120; // Add 5 seconds to laststartTime
+        candlesticks[i].timestamp = laststartTime;
+
+        laststartPrice = candlesticks[i].close;
     }
 
     return candlesticks;

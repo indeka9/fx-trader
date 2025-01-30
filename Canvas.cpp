@@ -3,7 +3,7 @@
 
 // Canvas.cpp
 Canvas::Canvas(int w, int h)
-	: width(w), height(h), isPanning(false), zoomLevel(1.0f), panX(0.0f), panY(0.0f), lastMouseX(0), lastMouseY(0) {
+	: width(w), height(h), isPanning(false), zoomLevel(1.0f), panX(0), panY(0), lastMouseX(0), lastMouseY(0) {
 	initGL();
 }
 
