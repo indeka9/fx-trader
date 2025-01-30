@@ -596,7 +596,7 @@ void CandlestickChart::drawCrosshair() const {
     float worldMouseY = panY + ((height - mouseY) / height) * (10.0f / zoomLevel);
 
     // Check if mouse is hovering over any candlestick
-    bool isHovering = false;
+    
     for (int i = curFirstCandleIndex; i < curFirstCandleIndex + maxVisibleCandles && i < candlesticks.size(); ++i) {
         if (isMouseHovering(worldMouseX, worldMouseY, static_cast<float>(i - curFirstCandleIndex), candlesticks[i], scaleX, scaleY, offsetX, offsetY)) {
 

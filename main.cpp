@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (Candlestick::onTimer(timerperiod)) {
-			generateCandlestickDataFile(2, "2021-01-01");
+			generateCandlestickDataFile(1, "2021-01-01");
 			chart.loadDataFromCSV("forex-2021-01-01.csv");
 			sma = FxTrader::calculateSMA(chart.getCandlesticks(), period);
 			ema = FxTrader::calculateEMA(chart.getCandlesticks(), period);
